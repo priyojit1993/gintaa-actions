@@ -38,7 +38,7 @@ public class ActionGroupService {
     }
 
     @Transactional
-    public void deleteActionGroup(String actionGroupId) {
+    public void deleteActionGroup(String actionGroupId) throws GintaaException{
         actionGroupRepository.deleteById(actionGroupId);
     }
 

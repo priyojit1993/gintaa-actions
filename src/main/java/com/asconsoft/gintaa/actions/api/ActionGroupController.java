@@ -79,9 +79,15 @@ public class ActionGroupController {
     @ApiOperation(value = "Use this api delete an action group"
             , response = ApiResponse.class, nickname = "delete-action-group")
     public ResponseEntity<ApiResponse> delete(@PathVariable String actionGroupName) {
-        actionGroupService.deleteActionGroup(actionGroupName);
-        return ResponseEntity.ok(ApiResponse.ofSuccess(HttpStatus.OK.value(),
-                "New Action Group deleted successfully"));
+        try {
+            actionGroupService.deleteActionGroup(actionGroupName);
+            return ResponseEntity.ok(ApiResponse.ofSuccess(HttpStatus.OK.value(),
+                    "New Action Group deleted successfully"));
+        } catch (Exception e) {
+            log.error("Could not delete action group due to ", e);
+            return new ResponseEntity<>(ApiResponse.ofFailure("Error while deleting action group " + e)
+                    , HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/import/csv")
