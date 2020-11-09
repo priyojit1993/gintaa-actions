@@ -1,5 +1,6 @@
 package com.asconsoft.gintaa.actions.api;
 
+import com.asconsoft.gintaa.actions.payload.ActionsModeResponse;
 import com.asconsoft.gintaa.common.exception.GintaaException;
 import com.asconsoft.gintaa.common.payload.ApiResponse;
 import com.asconsoft.gintaa.actions.exception.GintaaMdrException;
@@ -36,7 +37,7 @@ public class ActionModeController {
             @NonNull @AuthenticationPrincipal GintaaUserPrincipal authenticatedPrincipal
     ) {
         try {
-            List<ActionMode> allActionModes = actionModeService.getAllActionModes();
+            List<ActionsModeResponse> allActionModes = actionModeService.getAllActionModes();
             if (allActionModes.isEmpty()) {
                 return new ResponseEntity(ApiResponse.ofFailure(HttpStatus.OK.value(),
                         "no action modes found"), HttpStatus.OK);
@@ -56,8 +57,7 @@ public class ActionModeController {
     public ResponseEntity<ApiResponse> getActionGroup(@PathVariable String actionModeName) {
 
         try {
-            ActionMode actionModeById = actionModeService.findActionModeById(actionModeName)
-                    .orElseThrow(() -> new GintaaException("Action group not found .."));
+            ActionsModeResponse actionModeById = actionModeService.findActionModeById(actionModeName);
             return ResponseEntity.ok(ApiResponse.ofSuccess(HttpStatus.OK.value(), actionModeById, "Action mode found"));
 
         } catch (GintaaMdrException e) {
@@ -73,12 +73,12 @@ public class ActionModeController {
             , response = ApiResponse.class, nickname = "add-action-mode")
     public ResponseEntity<ApiResponse> insert(@RequestBody ActionModeRequest actionModeRequest) {
         try {
-            ActionMode actionMode = actionModeService.insertActionMode(actionModeRequest);
-            return ResponseEntity.ok(ApiResponse.ofSuccess(HttpStatus.OK.value(), actionMode.getName(),
+            ActionsModeResponse actionMode = actionModeService.insertActionMode(actionModeRequest);
+            return ResponseEntity.ok(ApiResponse.ofSuccess(HttpStatus.OK.value(), actionMode,
                     "New Action Mode created successfully"));
-        } catch (GintaaMdrException e) {
+        } catch (Exception e) {
             log.error("Error while creating Action Modes", e);
-            return new ResponseEntity(ApiResponse.ofFailure("error while creating action modes"),
+            return new ResponseEntity(ApiResponse.ofFailure("error while creating action modes " + e),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -90,19 +90,25 @@ public class ActionModeController {
             , response = ApiResponse.class, nickname = "delete-action-group")
 
     public ResponseEntity<ApiResponse> delete(@PathVariable String actionModeName) {
-        actionModeService.deleteActionMode(actionModeName);
-        return ResponseEntity.ok(ApiResponse.ofSuccess(HttpStatus.OK.value(),
-                "New Action Mode deleted successfully"));
+        try {
+            actionModeService.deleteActionMode(actionModeName);
+            return ResponseEntity.ok(ApiResponse.ofSuccess(HttpStatus.OK.value(),
+                    "New Action Mode deleted successfully"));
+        } catch (Exception e) {
+            log.error("Failed to delete action mode due to ", e);
+            return new ResponseEntity<>(ApiResponse.ofFailure("Error while deleting action mode " + e)
+                    , HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
-    @GetMapping("/import/csv")
+    @PostMapping("/import/csv")
 //    @RolesAllowed({"ROLE_ANNONYMOUS", "ROLE_ADMIN"})
     @ApiOperation(value = "Use this api import action modes from excell file"
             , response = ApiResponse.class, nickname = "import-action-modes")
     public ResponseEntity<ApiResponse> batchImportActionGroup(@RequestBody MultipartFile file) {
         try {
-            List<String> actionModes = actionModeService.batchImportActionMode(FileUtils.multipartToFile(file));
+            List<ActionsModeResponse> actionModes = actionModeService.batchImportActionMode(FileUtils.multipartToFile(file));
             return ResponseEntity.ok(ApiResponse.ofSuccess(HttpStatus.OK.value(), actionModes,
                     "Action modes imported successfully"));
         } catch (IOException e) {

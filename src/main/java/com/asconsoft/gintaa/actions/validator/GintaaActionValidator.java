@@ -1,5 +1,6 @@
 package com.asconsoft.gintaa.actions.validator;
 
+import com.asconsoft.gintaa.actions.payload.ActionModeRequest;
 import com.asconsoft.gintaa.common.exception.GintaaException;
 import com.asconsoft.gintaa.actions.payload.ActionGroupRequest;
 import edu.stanford.nlp.util.StringUtils;
@@ -16,6 +17,12 @@ public class GintaaActionValidator {
         }
     }
 
+
+    public void validateActionMode(ActionModeRequest actionModeRequest) {
+        if (checkNullOrEmpty(actionModeRequest.getDescription())
+                || checkNullOrEmpty(actionModeRequest.getName()))
+            throw new GintaaException("Action Mode name and/or description cannot be null or empty");
+    }
 
     private boolean checkNullOrEmpty(String s) {
         return StringUtils.isNullOrEmpty(s);

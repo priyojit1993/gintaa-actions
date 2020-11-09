@@ -62,4 +62,9 @@ public interface MDRMapper {
     public ActionGroupResponse map(ActionGroup actionGroup);
 
 
+    @Mapping(source = "name", target = "actionModeName")
+    @Mapping(source = "description", target = "actionModeDescription")
+    public ActionsModeResponse map(ActionMode actionMode);
+
+
 }
