@@ -1,0 +1,114 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gintaa_mdr
+    username: postgres
+    password: yourPassword
+  jpa:
+    show-sql: true
+    generate-ddl: true
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+
+
+server:
+  port: 8090
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
+
+gintaa:
+  remote:
+    services:
+      io:
+        name: gintaa-io
+      user:
+        name: gintaa-user
+  security:
+    definitions:
+      web:
+        - method: POST
+          endpoints:
+            - "/v1/user/principal"
+            - "/**/v1/tags/**"
+            - "/**/v1/mdr/**"
+            - "/**/v1/categories/**"
+            - "/**/v1/internal/categories/**"
+            - "/**/v1/category-tags/**"
+            - "/**/v1/tags/**"
+            - "/**/v1/tree/**"
+            - "/**/v1/verticals/**"
+            - "/**/v1/mdr/**"
+        - method: GET
+          endpoints:
+            - "/"
+            - "/error"
+            - "/favicon.ico"
+            - "/**/*.png"
+            - "/**/*.gif"
+            - "/**/*.svg"
+            - "/**/*.jpg"
+            - "/**/*.html"
+            - "/**/*.css"
+            - "/**/*.js"
+            - "/**/v2/api-docs"
+            - "/v2/api-docs"
+            - "/configuration/ui"
+            - "/swagger-resources"
+            - "/swagger-resources/**"
+            - "/configuration/**"
+            - "/configuration/security"
+            - "/swagger-ui.html"
+            - "/webjars/**"
+            - "/h2-console/**"
+            - "/**/v1/categories/**"
+            - "/**/v1/internal/categories/**"
+            - "/**/v1/category-tags/**"
+            - "/**/v1/tags/**"
+            - "/**/v1/tree/**"
+            - "/**/v1/verticals/**"
+            - "/**/v1/mdr/**"
+        - method: DELETE
+          endpoints:
+            - "/v1/user/principal"
+            - "/**/v1/tags/**"
+            - "/**/v1/categories/**"
+            - "/**/v1/internal/categories/**"
+            - "/**/v1/category-tags/**"
+            - "/**/v1/tags/**"
+            - "/**/v1/tree/**"
+            - "/**/v1/verticals/**"
+            - "/**/v1/mdr/**"
+        - method: PUT
+          endpoints:
+            - "/**/v1/tags/**"
+            - "/**/v1/categories/**"
+            - "/**/v1/internal/categories/**"
+            - "/**/v1/category-tags/**"
+            - "/**/v1/tags/**"
+            - "/**/v1/verticals/**"
+
+    token-provider: firebase
+
+  cache:
+    provider: redis
+    redis:
+      connection:
+        use-pool: true
+        lettuce:
+          pool:
+            max-idle: 8
+            min-idle: 0
+            max-active: 7
+            max-wait: -1
+            shutdown-timeout: 200
+      server:
+        password: ${CACHE_PASSWORD}
+        standalone:
+          host: ${CACHE_HOST:13.234.183.20}
+          port: ${CACHE_PORT:6379}
